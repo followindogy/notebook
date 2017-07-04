@@ -1,0 +1,17 @@
+climc客户端：
+/opt/cloud/meituan/client/climc
+host-list 查看主机列表
+server-list 查看虚拟机列表
+image-list 查看磁盘镜像列表
+server-create fc0 --host yfmostestnet10 --allow-delete --auto-start --flavor C1_M1 --image f12cd214-6004-4290-b2a8-91511086f1ec(系统)
+server-start test 启动虚拟机
+vnc-connect test 获得访问虚拟机VNC的URL
+
+美团云一些机器：
+ssh fucong@yf-cloud-netctr03 测试机环境管理机器
+ssh fucong@yf-mos-test-net10 测试环境宿主机
+访问yf-mos-test-net16 需要密码，ssh fucong@dx-cloud-climc01 -> sudo -iu sankuai -> ssh yf-mos-test-net16
+
+
+
+
