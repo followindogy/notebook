@@ -12,6 +12,28 @@ ssh fucong@yf-cloud-netctr03 测试机环境管理机器
 ssh fucong@yf-mos-test-net10 测试环境宿主机
 访问yf-mos-test-net16 需要密码，ssh fucong@dx-cloud-climc01 -> sudo -iu sankuai -> ssh yf-mos-test-net16
 
-
+git: 
+* git add 
+* git status
+* git commit
+* git remote -v 查看远程版本库
+* git push -u (首次) origin master
+* git remote add origin git@github.com:followindogy/gitlearn.git 
+* git remote rm origin 删除与远程版本库的连接
+* git rm  删除文件
+* git reset —hard HEAD^ 版本回退
+* git checkout —test1.c 从最近一次commit或者add 恢复工作区
+* git checkout HEAD test1.c 丢弃暂存区修改
+* git log查看历史版本
+* git reflog 查看历史命令
+* gitigore 忽略一些文件  强制添加 可用git add -f
+* HEAD 指向当前分支
+* git branch 查看分支
+* git branch dev 创建分支
+* git checkout dev  切换分支
+* git merge dev 把当前分支合并到dev上
+* 冲突解决，被两个分支同时修改的文件需要合并失败，需要解决冲突
+* 初始化远程连接失败，可以使用git clone
+* ssh-keygen 生成ssh key
 
 
