@@ -6,6 +6,7 @@ image-list 查看磁盘镜像列表
 server-create fc0 --host yfmostestnet10 --allow-delete --auto-start --flavor C1_M1 --image f12cd214-6004-4290-b2a8-91511086f1ec(系统)
 server-start test 启动虚拟机
 vnc-connect test 获得访问虚拟机VNC的URL
+server-password 获取密码
 
 美团云一些机器：
 ssh fucong@yf-cloud-netctr03 测试机环境管理机器
@@ -30,10 +31,64 @@ git:
 * HEAD 指向当前分支
 * git branch 查看分支
 * git branch dev 创建分支
-* git checkout dev  切换分支
+* git branch -D dev 删除分支
+* git branch -a 查看远程分支
+* git pull 下拉远程分支信息
+* git checkout dev  切换到本地分支 本地没有改分支，而且远程有该分支，可以直接切换到远程分支
 * git merge dev 把当前分支合并到dev上
 * 冲突解决，被两个分支同时修改的文件需要合并失败，需要解决冲突
 * 初始化远程连接失败，可以使用git clone
 * ssh-keygen 生成ssh key
+
+Ovs 相关命令：
+vs-ofctl add-flow brpri priority=31059,arp,in_port=190,actions=drop
+vs-ofctl dump-flows brpri
+
+mz(mousezahn) && netsniff-ng && tcpdump 相关命令:
+sudo /usr/local/sbin/mz bond1 -t arp -a 00:22:e5:8d:e2:22 -b ff:ff:ff:ff:ff:ff "request, senderip=172.16.249.62, sendmac=00:22:e5:8d:e2:19, targetip=172.16.249.43, targetmac=ff:ff:ff:ff:ff:ff"
+netsniff-ng --in test.pcap --out eth0
+tcpdump -i eth0 host 169... -w /home/fucong
+
+交换机相关：
+学习MAC地址：
+1.交换机每收到一帧时，会先检查以太网头部源MAC地址，看看自己MAC地址表中有没有地址。如果有则2，如果没有，则将这个MAC地址、进入时间、进入端口写入MAC地址表。
+2.检查目的MAC地址，然后到该表中查找，如果有匹配项，则按照表项中端口号转发；如果没有则转发到除了进口之外的所有端口。
+交换机是不区分包的类型的
+
+网卡相关：
+两种工作模式：
+1.混杂模式：
+不管数据帧中的地址是否与自己的MAC地址匹配，都接受下来。
+2.非混杂模式：
+只接受目的地址与自己MAC地址相匹配，以及广播数据包
+为了监听网络上的流量，必须设置为混杂模式
+
+ARP缓存：
+在接到ARP请求时，目的主机会根据ARP头中的源MAC和源IP更新本地ARP缓存（arp -a），下次查询MAC地址会优先从缓存查，如果缓存出错，会再尝试缓存之后，重新广播ARP请求
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
