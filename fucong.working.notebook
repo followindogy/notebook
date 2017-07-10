@@ -1,4 +1,3 @@
-test
 climc客户端：
 /opt/cloud/meituan/client/climc
 host-list 查看主机列表
@@ -36,9 +35,11 @@ git:
 * git branch -a 查看远程分支
 * git pull 下拉远程分支信息
 * git checkout dev  切换到本地分支 本地没有改分支，而且远程有该分支，可以直接切换到远程分支
-* git merge dev 把当前分支合并到dev上
 * 冲突解决，被两个分支同时修改的文件需要合并失败，需要解决冲突
 * 初始化远程连接失败，可以使用git clone
+* git fetch origin master:tmp 把远程master分支下拉倒本地tmp分支
+* git diff tmp 比较本分支与tmp分支
+* git merge tmp 把tmp分支上更改和到当前分支
 * ssh-keygen 生成ssh key
 
 Ovs 相关命令：
