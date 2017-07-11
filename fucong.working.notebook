@@ -16,7 +16,8 @@ ssh fucong@yf-mos-test-net10 测试环境宿主机
 git: 
 * git add 
 * git status
-* git commit
+* git commit   git commit --amend -a 修改最近的一次commit 把暂存区的数据commit
+* git rebase -i 分支/版本号    手动重建git 历史,修改当前分支
 * git remote -v 查看远程版本库 可以看到origin的值，表示远程版本库的链接，在git push 中使用
 * git push -u (首次) origin master
 * git remote add origin git@github.com:followindogy/gitlearn.git 
@@ -25,10 +26,10 @@ git:
 * git reset —hard HEAD^ 版本回退
 * git checkout —test1.c 从最近一次commit或者add 恢复工作区
 * git checkout HEAD test1.c 丢弃暂存区修改
-* git log查看历史版本
+* git log --stat -p 查看历史commit 和操作信息,看不到已经回退commit
 * git reflog 查看历史命令
 * gitigore 忽略一些文件  强制添加 可用git add -f
-* HEAD 指向当前分支
+* HEAD 指向当前分支当前commit
 * git branch 查看分支
 * git branch dev 创建分支
 * git branch -D dev 删除分支
@@ -68,7 +69,9 @@ tcpdump -i eth0 host 169... -w /home/fucong
 ARP缓存：
 在接到ARP请求时，目的主机会根据ARP头中的源MAC和源IP更新本地ARP缓存（arp -a），下次查询MAC地址会优先从缓存查，如果缓存出错，会再尝试缓存之后，重新广播ARP请求
 
-
+数据链路层：
+点对点信道：PPP协议 广播信道
+广泛使用循环冗余校验是否发生帧错误（CRC）
 
 
 
