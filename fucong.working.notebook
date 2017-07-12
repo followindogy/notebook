@@ -46,6 +46,18 @@ git:
 Ovs 相关命令：
 vs-ofctl add-flow brpri priority=31059,arp,in_port=190,actions=drop
 vs-ofctl dump-flows brpri
+ip netns add h1 创建网络名字空间
+ovs-vsctl add-br s1 创建交换机
+ip link add h1-eth0 type veth peer name s1-eth1 创建type网卡
+ip link set h1-eth0 netns h1 添加type网卡到h1
+ip netns exec h1 ping 
+ovs-vsctl add-port s1 s1-eth1 交换机添加端口
+ovs-vsctl set-controller s1 tcp:127.0.0.1 controller ptcp: & 配置控制器
+ifconfig s1-eth1 up
+ip netns exec h1 ifconfig h1-eth0 10.1
+service openvswitch start
+
+
 
 mz(mousezahn) && netsniff-ng && tcpdump 相关命令:
 sudo /usr/local/sbin/mz bond1 -t arp -a 00:22:e5:8d:e2:22 -b ff:ff:ff:ff:ff:ff "request, senderip=172.16.249.62, sendmac=00:22:e5:8d:e2:19, targetip=172.16.249.43, targetmac=ff:ff:ff:ff:ff:ff"
