@@ -53,10 +53,22 @@ netsniff-ng --in test.pcap --out eth0
 tcpdump -i eth0 host 169... -w /home/fucong
 
 交换机相关：
+在数据链路层扩展以太网
 学习MAC地址：
 1.交换机每收到一帧时，会先检查以太网头部源MAC地址，看看自己MAC地址表中有没有地址。如果有则2，如果没有，则将这个MAC地址、进入时间、进入端口写入MAC地址表。
 2.检查目的MAC地址，然后到该表中查找，如果有匹配项，则按照表项中端口号转发；如果没有则转发到除了进口之外的所有端口。
 交换机是不区分包的类型的
+3.交换机不会向帧进入端口转发，因为不需要交换机就可实现，则drop。
+
+优点：
+1.过滤通信量，增加吞吐量，交换机工作在链路层的MAC子层，使以太网各网段成为隔离开的碰撞域。
+2.扩大了物理范围，增加整个以太网上的主句数量。
+3.提高可靠性，网络故障一般只影响部分网段。
+缺点：
+1.先存储、查找转发表，必须执行CSMA/CD算法，增加时延。
+2.没有流量控制
+3.用户数不能太多（不超过几百个），否则还会传播过多的广播信息造成网络拥塞，即广播风暴。
+网桥会丢弃CRC循环检验有错的帧
 
 网卡相关：
 两种工作模式：
@@ -70,30 +82,289 @@ ARP缓存：
 在接到ARP请求时，目的主机会根据ARP头中的源MAC和源IP更新本地ARP缓存（arp -a），下次查询MAC地址会优先从缓存查，如果缓存出错，会再尝试缓存之后，重新广播ARP请求
 
 数据链路层：
-点对点信道：PPP协议 广播信道
+点对点信道：PPP协议 广播信道：以太网
 广泛使用循环冗余校验是否发生帧错误（CRC）
+计算机的硬件地址在网卡ROM中，IP地址在计算机存储器中
+协议栈把IP数据报向下发给网卡，组装成帧发送到局域网
+集线器工作在物理层，只负责比特位的转发
+一个集线器或是一个总线网络里的网卡在发包时要先进行碰撞检测（CSMA/CD 载波监听多点接入和碰撞检测协议），检测总线上是否有其他站在发送数据，如果有则等待信道变为空闲再发送，交换机可以隔离碰撞域。
+MAC帧头部即以太网头部，有源MAC，目的MAC，网络层协议（IP协议等）
+
+网络层：
+网络层向上只提供简单灵活的、无连接的、尽最大努力交付的数据报服务，不提供服务质量的承诺。
+协议：ICMP、IGMP、IP、RARP、ARP  ICMP和IGMP使用IP协议，IP协议使用ARP和RARP协议
+一个路由器至少连接两个网络，至少有两个IP。
+分组在网络中转发的时候，源IP和目的IP是不改变的，源MAC和目的MAC会改变。
+IP头上有ttl表示生存时间，每经过一个路由器ttl - 1，ttl为0路由器则drop，防止包在网络里一直逗留。
+同一个网络上的主机通信是不经过路由器的，查完路由后直接交付。跨网络一定经过路由器，由路由器转发。
+ICMP: 允许主机或路由器报告差错情况 ping就是应用层直接调用网络层ICMP实现的 
+
+traceroute工作原理：源主句向目的主机放松一连串的IP数据报，数据报中封装的是无法交付的udp报文。第一个数据报ttl = 1，路由器接到该报文，ttl - 1 = 0，路由器丢弃该报文 ，并向源主机发送一个ICMP时间超过差错
+报文，源主机接到超时错误之后会把ttl+1 继续发送报文，直到目的主机解析该报文返回ICMP终点不可达错误报文，成功结束。
+
+虚拟专用网，专用IP地址仅在机构内部有效，因特网上所有路由器都不会对目的地址是专用IP地址进行转发：
+10.0.0.0到10.255.255.255 172.16.0.0到172.31.255.255 192.168.0.0到192.168.255.255
+一个机构下两个距离很远的专用网，可以用两个路由器连到因特网，在因特网上加密传输
+
+网络地址转换NAT：
+专用IP是不能上网的，需要在专用网络连接到因特网上的路由器安装NAT软件，它至少有一个外部IP地址。
+专用IP只能主动地去访问，所以不能用作服务器.NAT路由器接到外部包时，会查看NAT地址转换表，修改目的IP，交付到本地网络。
+
+NAT 地址转换表举例：NAT路由器有多个外部IP地址，可以支持更多的内部请求。如果不加上端口号，一个外部一次只能支持一个专用IP的请求。
+方向    旧IP和端口号                    新IP和端口号
+出      192.168.0.3:30000               172.38.1.5:40001
+出  	192.168.0.4:40000		172.38.1.5:40002
+入	172.38.1.5:40001		192.168.0.3:30000
+入	172.38.1.5:40002		192.168.0.4:40000
+
+
+操作系统相关：
+1.死锁条件：
+* 互斥条件：一个资源每次只能被一个进程使用
+* 请求与保持条件：一个进程因请求资源而阻塞时，对已有的资源不释放
+* 不可剥夺条件：进程已获得的资源，在未使用完之前，不可强制剥夺
+* 循环等待
+多线程同步：
+1.互斥锁与条件变量：
+a.互斥锁能够解决资源的互斥访问,但是在某些情况下,互斥并不能解决问题,比如两个线程需要互斥的处理各自的操作,但是一个线程的操作仅仅存在一种条件成立的情况下执行,一旦错过不可再重现,由于线程间相互争夺cpu资源,因此在条件成立的时候,该线程不一定争夺到cpu而错过,导致永远得不到执行。
+b.条件变量相对于互斥量最大的优点在于允许线程以无竞争的方式等待条件的发生。当一个线程获得互斥锁后，发现自己需要等待某个条件变为真，如果是这样，该线程就可以等待在某个条件上，这样就不需要通过轮询的方式来判断添加，大大节省了CPU时间。
+c.条件变量与while配合使用不用if，防止多个线程被虚假唤醒，用while重新判断条件。
+#include <unistd.h>
+#include <sys/types.h>
+#include <pthread.h>
+#include <semaphore.h>
+
+#include <stdlib.h>
+#include <stdio.h>
+#include <errno.h>
+#include <string.h>
+
+#define ERR_EXIT(m) \
+        do \
+        { \
+                perror(m); \
+                exit(EXIT_FAILURE); \
+        } while(0)
+
+#define CONSUMERS_COUNT 2
+#define PRODUCERS_COUNT 1
+
+pthread_mutex_t g_mutex;
+pthread_cond_t g_cond;
+
+pthread_t g_thread[CONSUMERS_COUNT + PRODUCERS_COUNT];
+
+int nready = 0;
+
+void *consume(void *arg)
+{
+    int num = (int)arg;
+    while (1)
+    {
+        pthread_mutex_lock(&g_mutex);
+        while (nready == 0)
+        {
+            printf("%d begin wait a condtion ...\n", num);
+            pthread_cond_wait(&g_cond, &g_mutex);
+        }
+
+        printf("%d end wait a condtion ...\n", num);
+        printf("%d begin consume product ...\n", num);
+        --nready;
+        printf("%d end consume product ...\n", num);
+        pthread_mutex_unlock(&g_mutex);
+        sleep(1);
+    }
+    return NULL;
+}
+
+void *produce(void *arg)
+{
+    int num = (int)arg;
+    while (1)
+    {
+        pthread_mutex_lock(&g_mutex);
+        printf("%d begin produce product ...\n", num);
+        ++nready;
+        printf("%d end produce product ...\n", num);
+        pthread_cond_signal(&g_cond);
+        {
+            printf("%d begin wait a condtion ...\n", num);
+            pthread_cond_wait(&g_cond, &g_mutex);
+        }
+
+        printf("%d end wait a condtion ...\n", num);
+        printf("%d begin consume product ...\n", num);
+        --nready;
+        printf("%d end consume product ...\n", num);
+        pthread_mutex_unlock(&g_mutex);
+        sleep(1);
+    }
+    return NULL;
+}
+
+void *produce(void *arg)
+{
+    int num = (int)arg;
+    while (1)
+    {
+        pthread_mutex_lock(&g_mutex);
+        printf("%d begin produce product ...\n", num);
+        ++nready;
+        printf("%d end produce product ...\n", num);
+        pthread_cond_signal(&g_cond);
+
+pthread_t g_thread[CONSUMERS_COUNT + PRODUCERS_COUNT];
+
+int nready = 0;
+
+void *consume(void *arg)
+{
+    int num = (int)arg;
+    while (1)
+    {
+        pthread_mutex_lock(&g_mutex);
+        while (nready == 0)
+        {
+            printf("%d begin wait a condtion ...\n", num);
+            pthread_cond_wait(&g_cond, &g_mutex);
+        }
+
+        printf("%d end wait a condtion ...\n", num);
+        printf("%d begin consume product ...\n", num);
+        --nready;
+        printf("%d end consume product ...\n", num);
+        pthread_mutex_unlock(&g_mutex);
+        sleep(1);
+    }
+    return NULL;
+}
+
+void *produce(void *arg)
+{
+    int num = (int)arg;
+    while (1)
+    {
+        pthread_mutex_lock(&g_mutex);
+        printf("%d begin produce product ...\n", num);
+        ++nready;
+        printf("%d end produce product ...\n", num);
+        pthread_cond_signal(&g_cond);
+        printf("%d signal ...\n", num);
+        pthread_mutex_unlock(&g_mutex);
+        sleep(1);
+    }
+    return NULL;
+}
+
+int main(void)
+{
+    int i;
+
+    pthread_mutex_init(&g_mutex, NULL);
+    pthread_cond_init(&g_cond, NULL);
+
+
+    for (i = 0; i < CONSUMERS_COUNT; i++)
+        pthread_create(&g_thread[i], NULL, consume, (void *)i);
+
+    sleep(1);
+
+    for (i = 0; i < PRODUCERS_COUNT; i++)
+        pthread_create(&g_thread[CONSUMERS_COUNT + i], NULL, produce, (void *)i);
+
+    for (i = 0; i < CONSUMERS_COUNT + PRODUCERS_COUNT; i++)
+        pthread_join(g_thread[i], NULL);
+
+    pthread_mutex_destroy(&g_mutex);
+    pthread_cond_destroy(&g_cond);
+
+    return 0;
+}
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+信号量实现生产者和消费者
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <pthread.h>
+#include <semaphore.h>
+#include <signal.h>
+ 
+#define N 5   // 消费者或者生产者的数目
+#define M 10 // 缓冲数目
+//int M=10;
+int in = 0; // 生产者放置产品的位置
+int out = 0; // 消费者取产品的位置
+ 
+int buff[M] = { 0 }; // 缓冲初始化为0，开始时没有产品
+ 
+sem_t empty_sem; // 同步信号量，当满了时阻止生产者放产品
+sem_t full_sem; // 同步信号量，当没产品时阻止消费者消费
+pthread_mutex_t mutex; // 互斥信号量，一次只有一个线程访问缓冲
+ 
+int product_id = 0; //生产者id
+int prochase_id = 0; //消费者id
+//信号处理函数
+void Handlesignal(int signo){
+    printf("程序退出\n",signo);
+    exit(0);
+}
+/* 打印缓冲情况 */
+void print() {
+       inti;
+       printf("产品队列为");
+       for(i = 0; i < M; i++)
+              printf("%d", buff[i]);
+       printf("\n");
+}
+ 
+/* 生产者方法 */
+void *product() {
+       intid = ++product_id;
+       while(1) {//重复进行
+              //用sleep的数量可以调节生产和消费的速度，便于观察
+              sleep(2);
+ 
+              sem_wait(&empty_sem);
+              pthread_mutex_lock(&mutex);
+ 
+              in= in % M;
+              printf("生产者%d在产品队列中放入第%d个产品\t",id, in);
+ 
+              buff[in]= 1;
+              print();
+              ++in;
+ 
+              pthread_mutex_unlock(&mutex);
+              sem_post(&full_sem);
+       }
+}
+ 
+/* 消费者方法 */
+void *prochase() {
+       intid = ++prochase_id;
+       while(1) {//重复进行
+              //用sleep的数量可以调节生产和消费的速度，便于观察
+              sleep(5);
+ 
+              sem_wait(&full_sem);
+              pthread_mutex_lock(&mutex);
+ 
+              out= out % M;
+              printf("消费者%d从产品队列中取出第%d个产品\t",id, out);
+ 
+              buff[out]= 0;
+              print();
+              ++out;
+ 
+              pthread_mutex_unlock(&mutex);
+              sem_post(&empty_sem);
+       }
+}
+ 
+int main() {
+       printf("生产者和消费者数目都为5,产品缓冲为10,生产者每2秒生产一个产品，消费者每5秒消费一个产品,Ctrl+退出程序\n");
+       pthread_tid1[N];
+       pthread_tid2[N];
