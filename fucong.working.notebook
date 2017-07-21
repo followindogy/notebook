@@ -487,7 +487,7 @@ C++ 相关:
 7. list,vector,deque(双端队列) 都有push_back()   list和deque是链表实现的还有 push_front() list不具有[] 随机存取的能力
 8. vector 最佳使用: 预先分配了足够的空间，不需要重新分配；只在后端添加或者删除元素。 push_back insert erase
 9. deque 双端队列，利用多个连续的存储块，不需要重新分配空间。push_back() push_front(),insert,erase
-10.set insert erase  find 找到则返回迭代器，找不到返回end  size
+10.set insert erase  find 找到则返回迭代器，找不到返回st.end()  size() *begin()返回第一个元素 *rbegin() 返回最后一个元素 
 11.stack empty() size() push() pop() top()
 12.queue empty() size() push() pop()前端出 back() front()
 13.map<string,int> mp   插入 mp['id']=1, 查找mp.find('id') 返回迭代器，找不到返回end， erase删除一个元素，迭代时是不能用迭代器删除的。
