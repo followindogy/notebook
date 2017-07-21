@@ -469,6 +469,50 @@ SHELL 脚本:
 7.函数参数:函数定义时，不指定参数，使用$1,$2,${10}来调用，$* 表示参数组成的字符串，$@表示参数列表，$# 表示参数个数。
 
 
+python 相关:
+1.python是没有c++中块作用域的，if，while是不会释放变量的。函数和类是作用域。
+2.函数传参都是引用传递，int，string,元组是不可变对象，不会被改变。
+
+
+
+C++ 相关:
+1.sizeof 返回的是占用字节数
+语法:
+1. int a[]={10,20,30},int b[3], copy(a,a+3,b) 第二个指针指向超越末尾的位置
+2. bool equal(v1.begin(),v1.end(),v2.begin())
+3. copy时需保证有足够的空间来操作，可以使用back_inserter迭代器 copy(v1.begin(),v1end(),back_inserter(v2))
+4. for(vector<int>::iterator i=v1.begin(); i != v1.end(); i++)
+5. sort(v1.begin(),v1.end(),cmp)
+6. 标准库中容器存入的对象都是原对象的拷贝，必须要可拷贝构造的。
+7. list,vector,deque(双端队列) 都有push_back()   list和deque是链表实现的还有 push_front() list不具有[] 随机存取的能力
+8. vector 最佳使用: 预先分配了足够的空间，不需要重新分配；只在后端添加或者删除元素。 push_back insert erase
+9. deque 双端队列，利用多个连续的存储块，不需要重新分配空间。push_back() push_front(),insert,erase
+10.set insert erase  find 找到则返回迭代器，找不到返回end  size
+11.stack empty() size() push() pop() top()
+12.queue empty() size() push() pop()前端出 back() front()
+13.map<string,int> mp   插入 mp['id']=1, 查找mp.find('id') 返回迭代器，找不到返回end， erase删除一个元素，迭代时是不能用迭代器删除的。
+14.map和set 都是基于红黑树实现的。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
