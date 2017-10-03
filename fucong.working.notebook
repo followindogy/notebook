@@ -412,7 +412,7 @@ void *prochase() {
 1.阿里秋招内推电话面试一：7/11
 a.操作系统相关：产生死锁条件、避免死锁、linux下线程和进程、线程同步、内核态和用户态、线程池
 b.数据库相关：  b+树和红黑树，怎样加快查询
-c.linux相关：   查看cpu使用情况命令,CRTL C 发送sigint信号默认退出， CRTL Z发送SIGSTOP
+c.linux相关：   查看cpu使用情况命令,CRTL C 发送sigint信号默认退出， CRTL Z发送SIGSTOP, kill -9 发送SIGKILL
 d.C++相关：     多态怎么实现、虚函数表、多重继承会出什么问题
 其他：          hashtable和hashmap、二叉树给出前序和后序是否可以还原，根据前序和中序还原二叉树
 
@@ -495,11 +495,34 @@ C++ 相关:
 
 
 
+KVM and QEMU
+1. KVM是嵌入到linux内核中负责虚拟化的模块，工作在内核态，需要硬件的支持，实现cpu和内存的虚拟化。
+2. QEMU工作在用户态，创建虚拟机，进行IO和网络的虚拟化，每一个虚拟机是QEMU的一个进程，虚拟机中的进程是相应QEMU进程中的线程。
+3. QEMU对虚拟机虚拟硬件，所有对硬件的操作都会被QEMU转义，影响性能。
+4. KVM通过/dev/kvm暴露接口，使得CPU指令不再需要QEMU转义，直接运行，大大提高了速度。
 
+VM and CONTAINER:
+1.container是更轻量级的虚拟化，不包含操作系统内核，共享操作系统，每个container的名字空间都是不同的。
 
+单例模式
+class singleton
+{
+public:
+static singleton& getinstance();
+private:
+singleton();
+singleton(const singleton&);
+singleton& operator=(const singleton&);
 
-
-
+};
+singleton& singleton::getinstance()
+{
+ static singleton instance;
+ return instance;
+}
+singleton::singleton()
+{
+}
 
 
 
