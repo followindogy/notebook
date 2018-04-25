@@ -527,6 +527,15 @@ singleton::singleton()
 
 tmux: set -g mouse on
 
+docker
+ *docker run [options] image [command] [args]创建一个容器并运行命令
+ -d deamon
+ --name
+ -i -t 命令窗口交互
+ docker run --name mynginx -d -p 80:80 -v /data:/data nginx:latest
+ *docker stop/start/restart
+ *docker ps 查询运行中的容器
+ *docker exec -it mynginx /bin/sh /root/runoob.sh
 
 *********************************************************FREEWHELL******************************************************************************* 2018.4.14
 
@@ -540,23 +549,6 @@ PHASE 0: 初始化
 
 PHASE 1: closures building
    从 asset 和 site_section 出发，选出哪些network_id可以投放广告
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
